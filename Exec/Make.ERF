@@ -38,6 +38,14 @@ include $(ERF_PROBLEM_DIR)/Make.package
 VPATH_LOCATIONS   += $(ERF_PROBLEM_DIR)
 INCLUDE_LOCATIONS += $(ERF_PROBLEM_DIR)
 
+SECOND_CODE_DIR = $(ERF_HOME)/Submodules/amrex-tutorials/ExampleCodes/Amr/Advection_AmrCore/
+Bdirs 	:= $(SECOND_CODE_DIR)/Source $(SECOND_CODE_DIR)/Source/Src_K
+Bpack	+= $(foreach dir, $(Bdirs), $(dir)/Make.package)
+Blocs   += $(foreach dir, $(Bdirs), $(dir))
+include $(Bpack)
+INCLUDE_LOCATIONS += $(Blocs)
+VPATH_LOCATIONS   += $(Blocs)
+
 include $(AMREX_HOME)/Src/Base/Make.package
 
 AMReXdirs             := Base Boundary AmrCore
