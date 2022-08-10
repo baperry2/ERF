@@ -21,6 +21,8 @@ set(ERF_PRECISION "DOUBLE" CACHE STRING "Floating point precision SINGLE or DOUB
 option(ERF_ENABLE_TERRAIN "Enable Terrain" OFF)
 option(ERF_ENABLE_MOISTURE "Enable Moisture" OFF)
 
+option(ERF_ENABLE_MULTIBLOCK "Enable MutliBlock code" OFF)
+
 #Options for performance
 option(ERF_ENABLE_MPI "Enable MPI" OFF)
 option(ERF_ENABLE_OPENMP "Enable OpenMP" OFF)
@@ -86,6 +88,14 @@ if(ERF_ENABLE_NETCDF)
   if(NETCDF_FOUND)
      message(STATUS "Found NetCDF, NETCDF_DIR = ${NETCDF_DIR}")
   endif()
+endif()
+
+########################### Advection Case #####################################
+
+if(ERF_ENABLE_MULTIBLOCK)
+  set(TUTORIAL_SUBMOD_LOCATION "${CMAKE_SOURCE_DIR}/Submodules/amrex-tutorials")
+  include(${TUTORIAL_SUBMOD_LOCATION}/ExampleCodes/cmake/SetupTutorials.cmake)
+  add_subdirectory(${TUTORIAL_SUBMOD_LOCATION}/ExampleCodes/Amr/Advection_AmrCore)
 endif()
 
 ########################### ERF #####################################
