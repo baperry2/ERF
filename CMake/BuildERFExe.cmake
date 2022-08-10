@@ -25,9 +25,25 @@ function(build_erf_lib erf_lib_name)
   endif()
 
   if(ERF_ENABLE_MULTIBLOCK)
+    set(ADV_SRC_DIR ${CMAKE_SOURCE_DIR}/Submodules/amrex-tutorials/ExampleCodes/Amr/Advection_AmrCore/Source/)
     target_sources(${erf_lib_name} PRIVATE
                    ${SRC_DIR}/MultiBlockContainer.H
-                   ${SRC_DIR}/MultiBlockContainer.cpp)
+                   ${SRC_DIR}/MultiBlockContainer.cpp
+                   ${ADV_SRC_DIR}/AdvancePhiAllLevels.cpp
+                   ${ADV_SRC_DIR}/AdvancePhiAtLevel.cpp
+                   ${ADV_SRC_DIR}/AmrCoreAdv.cpp
+                   ${ADV_SRC_DIR}/AmrCoreAdv.H
+                   ${ADV_SRC_DIR}/bc_fill.H
+                   ${ADV_SRC_DIR}/DefineVelocity.cpp
+                   ${ADV_SRC_DIR}/face_velocity.H
+                   ${ADV_SRC_DIR}/Kernels.H
+                   ${ADV_SRC_DIR}/Tagging.H
+                   ${ADV_SRC_DIR}/Prob.H
+                   ${ADV_SRC_DIR}/Src_K/Adv_K.H
+                   ${ADV_SRC_DIR}/Src_K/compute_flux_2D_K.H
+                   ${ADV_SRC_DIR}/Src_K/compute_flux_3D_K.H
+                   ${ADV_SRC_DIR}/Src_K/slope_K.H)
+    target_include_directories(${erf_lib_name} SYSTEM PUBLIC ${ADV_SRC_DIR} ${ADV_SRC_DIR}/Src_K )
     target_compile_definitions(${erf_lib_name} PUBLIC ERF_USE_MULTIBLOCK)
   endif()
 

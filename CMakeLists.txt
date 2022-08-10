@@ -90,14 +90,6 @@ if(ERF_ENABLE_NETCDF)
   endif()
 endif()
 
-########################### Advection Case #####################################
-
-if(ERF_ENABLE_MULTIBLOCK)
-  set(TUTORIAL_SUBMOD_LOCATION "${CMAKE_SOURCE_DIR}/Submodules/amrex-tutorials")
-  include(${TUTORIAL_SUBMOD_LOCATION}/ExampleCodes/cmake/SetupTutorials.cmake)
-  add_subdirectory(${TUTORIAL_SUBMOD_LOCATION}/ExampleCodes/Amr/Advection_AmrCore)
-endif()
-
 ########################### ERF #####################################
 
 if(ERF_ENABLE_MPI)
