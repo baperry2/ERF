@@ -330,7 +330,7 @@ ERF::InitData ()
 
 #ifdef ERF_USE_MULTIBLOCK
         // Multiblock: hook to set BL & comms once ba/dm are known
-        if(domain_p[0].bigEnd(0) < 500 ) {
+        if(domain_p[0].bigEnd(0) < 60 ) {
             m_mbc->SetBoxLists();
             m_mbc->SetBlockCommMetaData();
         }
@@ -1101,6 +1101,8 @@ ERF::ERF (const amrex::RealBox& rb, int max_level_in,
 
     t_new.resize(nlevs_max, 0.0);
     t_old.resize(nlevs_max, -1.e100);
+    //std::cout << "nlevs_max " << nlevs_max << std::endl;
+    std::cout << "INITAIL TIMES " << t_old[0] << " " << t_new[0] << std::endl;
     dt.resize(nlevs_max, 1.e100);
     dt_mri_ratio.resize(nlevs_max, 1);
 
@@ -1175,7 +1177,7 @@ ERF::Evolve_MB (int MBstep, int max_block_step)
 
         // DEBUG
         // Multiblock: hook for erf2 to fill from erf1
-        if(domain_p[0].bigEnd(0) < 500) {
+        if(domain_p[0].bigEnd(0) < 60) {
             for (int var_idx = 0; var_idx < Vars::NumTypes; ++var_idx)
                 m_mbc->FillPatchBlocks(var_idx,var_idx);
         }

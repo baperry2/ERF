@@ -9,6 +9,7 @@
 #ifdef ERF_USE_MULTIBLOCK
 #include <MultiBlockContainer.H>
 #include <AmrCoreAdv.H>
+#include "amr-wind/incflo.H"
 #endif
 
 std::string inputs_name = "";
@@ -66,24 +67,21 @@ int main(int argc, char* argv[])
 
 #ifdef ERF_USE_MULTIBLOCK
     {
-        // constructor - reads in parameters from inputs file
-        //             - sizes multilevel arrays and data structures
-        AmrCoreAdv amr_core_adv;
 
-        // initialize AMR data
-        amr_core_adv.InitData();
 
-        // advance solution to final time
-        amr_core_adv.Evolve();
+      //incflo my_incflo;
+        amrex::Real start_time = amrex::ParallelDescriptor::second();
+        // Initialize data, parameters, arrays and derived internals
+        // my_incflo.InitData();
 
-        // wallclock time
-        auto end_total = amrex::second() - strt_total;
+        // Time spent on initialization
+        amrex::Real init_time =
+            amrex::ParallelDescriptor::second() - start_time;
+        amrex::Print() << "Initialization successful. Time elapsed = "
+                       << init_time << std::endl;
 
-        if (amr_core_adv.Verbose()) {
-            // print wallclock time
-            ParallelDescriptor::ReduceRealMax(end_total ,ParallelDescriptor::IOProcessorNumber());
-            amrex::Print() << "\nTotal Time: " << end_total << '\n';
-        }
+        // Evolve system to final time
+        // my_incflo.Evolve(); */
 
         // Vector of constructor parameters for MultiBlock
         std::vector<amrex::RealBox> rb_v;
@@ -165,6 +163,7 @@ int main(int argc, char* argv[])
             prefix_v.push_back("erf2");
 
         }
+        std::cout <<  "NOT INITIALIZED YET" << std::endl;
 
         // Construct a MultiBlockContainer
         MultiBlockContainer mbc(rb_v, max_level_v, n_cell_v,

@@ -15,4 +15,4 @@ cmake -DCMAKE_INSTALL_PREFIX:PATH=./install \
       -DERF_ENABLE_FCOMPARE:BOOL=ON \
       -DERF_ENABLE_DOCUMENTATION:BOOL=OFF \
       -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=ON \
-      .. && make -j8
+      .. && make -j${1:-32}

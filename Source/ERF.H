@@ -81,6 +81,9 @@ public:
     ERF ();
     virtual ~ERF();
 
+  amrex::Real get_t_old() {return t_old[0];}
+  amrex::Real get_t_new() {return t_new[0];}
+
     // Advance solution to final time
     void Evolve ();
 
