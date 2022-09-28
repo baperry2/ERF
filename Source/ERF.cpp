@@ -328,14 +328,6 @@ ERF::InitData ()
         const Real time = 0.0;
         InitFromScratch(time);
 
-#ifdef ERF_USE_MULTIBLOCK
-        // Multiblock: hook to set BL & comms once ba/dm are known
-        if(domain_p[0].bigEnd(0) < 60 ) {
-            m_mbc->SetBoxLists();
-            m_mbc->SetBlockCommMetaData();
-        }
-#endif
-
         // For now we initialize rho_KE to 0
         for (int lev = finest_level-1; lev >= 0; --lev)
             vars_new[lev][Vars::cons].setVal(0.0,RhoKE_comp,1,0);
@@ -1173,15 +1165,6 @@ ERF::Evolve_MB (int MBstep, int max_block_step)
         int lev = 0;
         int iteration = 1;
         timeStep(lev, cur_time, iteration);
-
-
-        // DEBUG
-        // Multiblock: hook for erf2 to fill from erf1
-        if(domain_p[0].bigEnd(0) < 60) {
-            for (int var_idx = 0; var_idx < Vars::NumTypes; ++var_idx)
-                m_mbc->FillPatchBlocks(var_idx,var_idx);
-        }
-
 
         cur_time  += dt[0];
 

@@ -28,19 +28,11 @@ public:
     // Set up BoxList vector for use with Communication Meta Data
     void SetBoxLists ();
 
-    void SetBoxListsAtoE();
-
     // Set up MB Communication Meta Data
     void SetBlockCommMetaData ();
 
     // Advance blocks
     void AdvanceBlocks ();
-
-    // Fill MFs from other block(s)
-    void FillPatchBlocks (int src_ind, int dst_ind);
-
-    // Fill MFs from other block(s)
-    void FillPatchBlocksFull ();
 
     // Fill MFs from other block(s)
     void FillPatchBlocksAE ();
@@ -59,6 +51,7 @@ private:
     ERF erf1;
     ERF erf2;
 
+    bool do_two_way_coupling;
     amrex::NonLocalBC::MultiBlockIndexMapping dtos;
     amrex::NonLocalBC::MultiBlockIndexMapping dtos_etoa;
     amrex::NonLocalBC::MultiBlockIndexMapping dtos_atoe;
@@ -66,9 +59,10 @@ private:
     std::vector<amrex::BoxList> blv;
     std::vector<amrex::NonLocalBC::MultiBlockCommMetaData*> cmd_full;
     std::vector<amrex::Box> blv_full;
-    std::vector<amrex::NonLocalBC::MultiBlockCommMetaData*> cmd_etoa;
+  //amrex::NonLocalBC::MultiBlockCommMetaData* cmd_etoa;
+  std::vector<amrex::NonLocalBC::MultiBlockCommMetaData*> cmd_etoa;
+    amrex::Box box_etoa;
   //std::vector<std::vector<amrex::NonLocalBC::MultiBlockCommMetaData*>> cmd_atoe;
-    std::vector<amrex::Box> blv_etoa;
 };
 
 #endif

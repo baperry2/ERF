@@ -17,7 +17,7 @@ time.checkpoint_interval      =  40       # Steps between checkpoint files
 #               PHYSICS                 #
 #.......................................#
 incflo.gravity          =   0.  0. -9.81  # Gravitational force (3D)
-incflo.density          = 1.0          # Reference density
+incflo.density          = 1.161440171          # Reference density
 incflo.use_godunov = 1
 transport.viscosity = 0
 transport.laminar_prandtl = 0.7
@@ -75,18 +75,18 @@ incflo.delp             =   0.  0.  0.  # Prescribed (cyclic) pressure gradient
 zlo.type =   "slip_wall"
 
 xlo.type = "mass_inflow"
-xlo.density = 1.0
+xlo.density = 1.161440171 #1.0
 xlo.temperature = 0.0
 xhi.type = "pressure_outflow"
 #xhi.type = "mass_inflow" #DELETE
-#xhi.density = 1.0 #DELETE
+#xhi.density = 1.161440171 #1.0 #DELETE
 #xhi.temperature = 0.0 #DELETE
 ylo.type = "mass_inflow"
-ylo.density = 1.0
+ylo.density = 1.161440171 #1.0
 ylo.temperature = 0.0
 yhi.type = "pressure_outflow"
 #yhi.type = "mass_inflow" #DELETE
-#yhi.density = 1.0 #DELETE
+#yhi.density = 1.161440171 #1.0 #DELETE
 #yhi.temperature = 0.0 #DELETE
 
 zhi.type =   "slip_wall"
