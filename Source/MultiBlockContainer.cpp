@@ -229,6 +229,7 @@ MultiBlockContainer::FillPatchBlocksAE()
   // Note: AMR-Wind data is cell centered for all variables, and we only care about the valid data
   //       so no ghost cells for Temp of Dens. But we will be interpolating velocity to faces so we
   //       need one ghost cell for velocity
+  // TODO: make these only correspond to the needed region (box_etoa) rather than the full ERF domain
   const amrex::BoxArray& ba            = erf1.vars_new[0][Vars::cons].boxArray();
   const amrex::DistributionMapping& dm = erf1.vars_new[0][Vars::cons].DistributionMap();
   amrex::MultiFab Temp_AW{ba, dm, 1, 0};
@@ -256,8 +257,9 @@ MultiBlockContainer::FillPatchBlocksAE()
     auto vel_aw_arr = Vel_AW[mfi].array();
     auto dens_aw_arr = Dens_AW[mfi].array();
     auto temp_aw_arr = Temp_AW[mfi].array();
-    amrex::ParallelFor(box, [=] AMREX_GPU_DEVICE (int i, int j, int k) {
-                              if (box_etoa.contains(i,j,k)) {
+    amrex::Box ibox = box & box_etoa; // intersection of boxes
+    std::cout << "IBOXES " << box << " | " <<  box_etoa << " | " <<  ibox << " | " << ibox.isEmpty() << std::endl;
+    amrex::ParallelFor(ibox, [=] AMREX_GPU_DEVICE (int i, int j, int k) {
                                 // Save AMR-Wind Scalar into ERF data
                                 cons_arr(i,j,k,Cons::RhoScalar) = cons_arr(i,j,k,Cons::Rho)*temp_aw_arr(i,j,k);
                                 // Cell-centered velocity using energy preserving correction from Sprague & Satkauskas 2015
@@ -265,7 +267,6 @@ MultiBlockContainer::FillPatchBlocksAE()
                                 vel_aw_arr(i,j,k,0) *= dens_correction;
                                 vel_aw_arr(i,j,k,1) *= dens_correction;
                                 vel_aw_arr(i,j,k,2) *= dens_correction;
-                              }
                             });
   }
 
@@ -282,26 +283,24 @@ MultiBlockContainer::FillPatchBlocksAE()
 #pragma omp parallel if (amrex::Gpu::notInLaunchRegion())
 #endif
   for (amrex::MFIter mfi(erf1.vars_new[0][Vars::cons]); mfi.isValid(); ++mfi) {
-    const amrex::Box& box = mfi.validbox();
-    // interpolate corrected velocities to face centers
-    auto velx_arr = erf1.vars_new[0][Vars::xvel][mfi].array();
-    auto vely_arr = erf1.vars_new[0][Vars::yvel][mfi].array();
-    auto velz_arr = erf1.vars_new[0][Vars::zvel][mfi].array();
     auto vel_aw_arr = Vel_AW[mfi].array();
-    // boxes that contain only interior face centers
-    amrex::Box xbox = surroundingNodes(box_etoa,0).grow(0,-1);
-    amrex::Box ybox = surroundingNodes(box_etoa,1).grow(1,-1);
-    amrex::Box zbox = surroundingNodes(box_etoa,2).grow(2,-1);
-    amrex::ParallelFor(box, [=] AMREX_GPU_DEVICE (int i, int j, int k) {
-                              if (xbox.contains(i,j,k)) {
-                                velx_arr(i,j,k) = 0.5*(vel_aw_arr(i,j,k,0) + vel_aw_arr(i-1,j,k,0));
-                              }
-                              if (ybox.contains(i,j,k)) {
-                                vely_arr(i,j,k) = 0.5*(vel_aw_arr(i,j,k,1) + vel_aw_arr(i,j-1,k,1));
-                              }
-                              if (zbox.contains(i,j,k)) {
-                                velz_arr(i,j,k) = 0.5*(vel_aw_arr(i,j,k,2) + vel_aw_arr(i,j,k-1,2));
-                              }
-                            });
+    // interpolate corrected velocities to face centers (only on interior)
+    auto velx_arr = erf1.vars_new[0][Vars::xvel][mfi].array();
+    amrex::Box xbox = mfi.nodaltilebox(0) & surroundingNodes(box_etoa,0).grow(0,-1);
+    amrex::ParallelFor(xbox, [=] AMREX_GPU_DEVICE (int i, int j, int k) {
+                               velx_arr(i,j,k) = 0.5*(vel_aw_arr(i,j,k,0) + vel_aw_arr(i-1,j,k,0));
+                             });
+    
+    auto vely_arr = erf1.vars_new[0][Vars::yvel][mfi].array();
+    amrex::Box ybox =  mfi.nodaltilebox(1) & surroundingNodes(box_etoa,1).grow(1,-1);
+    amrex::ParallelFor(ybox, [=] AMREX_GPU_DEVICE (int i, int j, int k) {
+                               vely_arr(i,j,k) = 0.5*(vel_aw_arr(i,j,k,1) + vel_aw_arr(i,j-1,k,1));
+                             });
+    
+    auto velz_arr = erf1.vars_new[0][Vars::zvel][mfi].array();
+    amrex::Box zbox =  mfi.nodaltilebox(2) & surroundingNodes(box_etoa,2).grow(2,-1);
+    amrex::ParallelFor(zbox, [=] AMREX_GPU_DEVICE (int i, int j, int k) {
+                               velz_arr(i,j,k) = 0.5*(vel_aw_arr(i,j,k,2) + vel_aw_arr(i,j,k-1,2));
+                             });
   }
 }
