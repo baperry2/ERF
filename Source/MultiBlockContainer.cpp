@@ -192,27 +192,23 @@ void MultiBlockContainer::CopyToBoundaryRegister (amrex::BndryRegister& receive_
 
   // WARNING: for this to work properly we need to make sure the new state data is FillPatched
   //          old data is FillPatched at beginning of timestep and should be good
+  amrex::Vector<amrex::MultiFab>* erf_data;
+  erf_data = &erf1.vars_old[0];
+  std::cout << (*erf_data)[Vars::cons].min(Cons::Rho);
   
   amrex::NonLocalBC::MultiBlockCommMetaData *cmd_old =
     new amrex::NonLocalBC::MultiBlockCommMetaData(receive_br_old[ori].multiFab(), blv_atoe[ori],
                                                   erf1.vars_old[0][Vars::cons], nghost, dtos_atoe);
-  amrex::NonLocalBC::MultiBlockCommMetaData *cmd_new =
-    new amrex::NonLocalBC::MultiBlockCommMetaData(receive_br_new[ori].multiFab(), blv_atoe[ori],
-                                                  erf1.vars_new[0][Vars::cons], nghost, dtos_atoe);
 
   // RHOTheta -> Theta (FIXME bad, should only do for relevant cells, etc)
   amrex::MultiFab::Divide(erf1.vars_old[0][Vars::cons], erf1.vars_old[0][Vars::cons], Cons::Rho, Cons::RhoScalar, 1, nghost);
-  amrex::MultiFab::Divide(erf1.vars_new[0][Vars::cons], erf1.vars_new[0][Vars::cons], Cons::Rho, Cons::RhoScalar, 1, nghost);
 
   // Copy data
   amrex::NonLocalBC::ParallelCopy(receive_br_old[ori].multiFab(), erf1.vars_old[0][Vars::cons],
                                   *cmd_old, Cons::RhoScalar, 0, 1, dtos_atoe);
-  amrex::NonLocalBC::ParallelCopy(receive_br_new[ori].multiFab(), erf1.vars_new[0][Vars::cons],
-                                  *cmd_new, Cons::RhoScalar, 0, 1, dtos_atoe);
 
   // Theta -> RhoTheta (FIXME bad, should only do for relevant cells, etc)
   amrex::MultiFab::Multiply(erf1.vars_old[0][Vars::cons], erf1.vars_old[0][Vars::cons], Cons::Rho, Cons::RhoScalar, 1, nghost);
-  amrex::MultiFab::Multiply(erf1.vars_new[0][Vars::cons], erf1.vars_new[0][Vars::cons], Cons::Rho, Cons::RhoScalar, 1, nghost);
 }
 
 void
@@ -258,7 +254,6 @@ MultiBlockContainer::FillPatchBlocksAE()
     auto dens_aw_arr = Dens_AW[mfi].array();
     auto temp_aw_arr = Temp_AW[mfi].array();
     amrex::Box ibox = box & box_etoa; // intersection of boxes
-    std::cout << "IBOXES " << box << " | " <<  box_etoa << " | " <<  ibox << " | " << ibox.isEmpty() << std::endl;
     amrex::ParallelFor(ibox, [=] AMREX_GPU_DEVICE (int i, int j, int k) {
                                 // Save AMR-Wind Scalar into ERF data
                                 cons_arr(i,j,k,Cons::RhoScalar) = cons_arr(i,j,k,Cons::Rho)*temp_aw_arr(i,j,k);
