@@ -213,9 +213,14 @@ init_custom_prob(
     Real theta_perturbed = (Tbar_hse+dT)*std::pow(p_0/p[k], R_d/parms.C_p);
 
     // This version perturbs rho but not p
-    state(i, j, k, RhoTheta_comp) = std::pow(p[k]/p_0,1.0/Gamma) * p_0 / R_d;
-    state(i, j, k, Rho_comp) = state(i, j, k, RhoTheta_comp) / theta_perturbed;
-
+    // FIXME MULTIBLOCK TODO
+    if (geomdata.Domain().bigEnd()[0] < 500) {
+      state(i, j, k, RhoTheta_comp)  = 300.0;
+      state(i, j, k, Rho_comp)  = 1.0;
+    } else {
+      state(i, j, k, RhoTheta_comp) = std::pow(p[k]/p_0,1.0/Gamma) * p_0 / R_d;
+      state(i, j, k, Rho_comp) = state(i, j, k, RhoTheta_comp) / theta_perturbed;
+    }
     // Set scalar = 0 everywhere
     state(i, j, k, RhoScalar_comp) = 0.0;
 
@@ -230,7 +235,12 @@ init_custom_prob(
   // Set the x-velocity
   amrex::ParallelFor(xbx, [=, parms=parms] AMREX_GPU_DEVICE(int i, int j, int k) noexcept
   {
+    // FIXME MULTIBLOCK TODO
+    if (geomdata.Domain().bigEnd()[0] < 500) {
+      x_vel(i, j, k) = double(i)/100;
+    } else {
       x_vel(i, j, k) = parms.U_0;
+    }
   });
 
   // Construct a box that is on y-faces

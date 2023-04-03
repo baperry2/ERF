@@ -38,31 +38,26 @@ public:
     void FillPatchBlocksAE ();
 
     // Fill AMR-Wind Boundary Regsiter from ERF1
-  void CopyToBoundaryRegister (amrex::BndryRegister& receive_br_old, amrex::BndryRegister& receive_br_new, amrex::Orientation ori);
+  void CopyERFtoAMRWindBoundaryReg (amrex::BndryRegister& receive_br,  amrex::Orientation ori, amrex::Real time, const std::string& field);
 
   //void PopulateErfTimesteps (amrex::Vector<amrex::Real> tsteps) const {erf1.CoarseTimeState(/*tsteps*/);}
   void PopulateErfTimesteps(amrex::Real* tsteps);
 
-  std::vector<amrex::Box> blv_atoe;
 private:
+  std::vector<amrex::Box> eboxvec_afrome;
+  std::vector<amrex::Box> aboxvec_afrome;
     int m_max_step;
   // TODO: why does amrwind have to come before erf?
     incflo amrwind;
     ERF erf1;
-    ERF erf2;
 
     bool do_two_way_coupling;
-    amrex::NonLocalBC::MultiBlockIndexMapping dtos;
-    amrex::NonLocalBC::MultiBlockIndexMapping dtos_etoa;
-    amrex::NonLocalBC::MultiBlockIndexMapping dtos_atoe;
-    std::vector<std::vector<amrex::NonLocalBC::MultiBlockCommMetaData*>> cmd;
-    std::vector<amrex::BoxList> blv;
-    std::vector<amrex::NonLocalBC::MultiBlockCommMetaData*> cmd_full;
-    std::vector<amrex::Box> blv_full;
-  //amrex::NonLocalBC::MultiBlockCommMetaData* cmd_etoa;
-  std::vector<amrex::NonLocalBC::MultiBlockCommMetaData*> cmd_etoa;
-    amrex::Box box_etoa;
-  //std::vector<std::vector<amrex::NonLocalBC::MultiBlockCommMetaData*>> cmd_atoe;
+    amrex::NonLocalBC::MultiBlockIndexMapping dtos_efroma;
+    amrex::NonLocalBC::MultiBlockIndexMapping dtos_afrome;
+  std::vector<amrex::NonLocalBC::MultiBlockCommMetaData*> cmd_efroma;
+    amrex::Box ebox_efroma;
+    amrex::Box abox_efroma;
+  //std::vector<std::vector<amrex::NonLocalBC::MultiBlockCommMetaData*>> cmd_afrome;
 };
 
 #endif
