@@ -52,6 +52,7 @@ private:
     ERF erf1;
 
     bool do_two_way_coupling;
+  int two_way_coupling_frequency;
     amrex::NonLocalBC::MultiBlockIndexMapping dtos_efroma;
     amrex::NonLocalBC::MultiBlockIndexMapping dtos_afrome;
   std::vector<amrex::NonLocalBC::MultiBlockCommMetaData*> cmd_efroma;

@@ -65,7 +65,9 @@ MultiBlockContainer::InitializeBlocks()
   SetBlockCommMetaData();
   amrex::ParmParse pp("mbc");
   do_two_way_coupling = false;
+  two_way_coupling_frequency = 1;
   pp.query("do_two_way_coupling", do_two_way_coupling);
+  pp.query("two_way_coupling_frequency", two_way_coupling_frequency);
   FillPatchBlocksAE();
   amrex::Print() << "------------------------------------"  << "\n";
   amrex::Print() << '\n';
@@ -156,7 +158,7 @@ MultiBlockContainer::AdvanceBlocks()
         amrex::Print() << "        AMR-WIND BLOCK STARTS       "  << "\n";
         amrex::Print() << "------------------------------------"  << "\n";
         amrwind.Evolve_MB(step,1);
-        if (do_two_way_coupling) {
+        if (do_two_way_coupling && ((step % two_way_coupling_frequency) == 0)) {
           amrex::Print() << '\n';
           amrex::Print() << "------------------------------------"  << "\n";
           amrex::Print() << "           FILLPATCH A->E           "  << "\n";
@@ -179,42 +181,12 @@ void MultiBlockContainer::CopyERFtoAMRWindBoundaryReg (amrex::BndryRegister& rec
                                                        const std::string &field) {
 
   // Need a ghost cell in case AMR-Wind boundary to be filled coincides with ERF boundary
-  amrex::IntVect nghost(1);
-
+  amrex::IntVect nghost(0);
+  // nghost[ori.coordDir()] = 1;
+  // FOR NOW - don't support this, ERF must be interior of AMR-Wind
+  
   // ERF level where we are getting the data
   const int erf_source_level = 0;
-
-  /*
-  // WARNING: for this to work properly we need to make sure the new state data is FillPatched
-  //          old data is FillPatched at beginning of timestep and should be good
-  amrex::Vector<amrex::MultiFab>* erf_data;
-  if (time == erf1.get_t_old() ) {
-    erf_data = &erf1.vars_old[erf_source_level];
-  } else if (time == erf1.get_t_new() ) {
-    erf_data = &erf1.vars_new[erf_source_level];
-  } else {
-    amrex::Abort("MultiBlockContainer::CopyERFtoAMRWindBoundaryReg invalid time requested");
-  }
-  
-  if (field == "temperature") {
-    amrex::NonLocalBC::MultiBlockCommMetaData cmd =
-      amrex::NonLocalBC::MultiBlockCommMetaData(receive_br[ori].multiFab(), bv_afrome[ori],
-                                                (*erf_data)[Vars::cons], nghost, dtos_afrome);
-
-    // RHOTheta -> Theta (FIXME bad, should only do for relevant cells, etc)
-    amrex::MultiFab::Divide((*erf_data)[Vars::cons], (*erf_data)[Vars::cons], Cons::Rho, Cons::RhoScalar, 1, nghost);
-
-    
-    amrex::Abort("I AM JUST STOPPING HERE FOR FUN");
-    
-    // Copy data
-    amrex::NonLocalBC::ParallelCopy(receive_br[ori].multiFab(), (*erf_data)[Vars::cons],
-                                    cmd, Cons::RhoScalar, 0, 1, dtos_afrome);
-
-    // Theta -> RhoTheta (FIXME bad, should only do for relevant cells, etc)
-    amrex::MultiFab::Multiply((*erf_data)[Vars::cons], (*erf_data)[Vars::cons], Cons::Rho, Cons::RhoScalar, 1, nghost);
-  }
-  */
   
   // WARNING: for this to work properly we need to make sure the new state data is FillPatched
   //          old data is FillPatched at beginning of timestep and should be good
@@ -222,68 +194,115 @@ void MultiBlockContainer::CopyERFtoAMRWindBoundaryReg (amrex::BndryRegister& rec
   bool on_old_time{time == erf1.get_t_old()};
   bool on_new_time{time == erf1.get_t_new()};
   AMREX_ALWAYS_ASSERT(on_new_time || on_old_time);
+  if (on_old_time) {
+    amrex::Print() << std::endl << "FILLPATCHING _ " << field << " _ FROM ERF TO AMR WIND ON _ old _ TIME, ORIENTATION " << ori << std::endl << std::endl;
+  }
+  else {
+    amrex::Print() << std::endl << "FILLPATCHING _ " << field << " _ FROM ERF TO AMR WIND ON _ new _ TIME, ORIENTATION " << ori << std::endl << std::endl;
+  }
+  
   amrex::Vector<amrex::MultiFab>& erf_data = on_old_time ? erf1.vars_old[erf_source_level] : erf1.vars_new[erf_source_level];
+    
+  // For selecting only subdomain of erf domain for data processing
+  std::map<int,int> mfmap;
+  amrex::Vector<int> new_dl;
+  amrex::BoxList new_bl;
+  const amrex::BoxArray& old_ba = erf_data[Vars::cons].boxArray();
+  const amrex::DistributionMapping& old_dm = erf_data[Vars::cons].DistributionMap();
+  for (int i = 0; i < old_ba.size(); i++) {
+    amrex::Box isect = old_ba[i] & eboxvec_afrome[ori];
+    if (isect.ok()) {
+      new_bl.push_back(isect);
+      new_dl.push_back(old_dm[i]);
+      mfmap.insert({new_dl.size()-1, i});
+    } 
+  }
+  amrex::BoxArray new_ba(new_bl);
+  amrex::DistributionMapping new_dm(new_dl);
+  
   if (field == "temperature") {
-    if (on_old_time) {
-      amrex::Print() << std::endl << "FILLPATCHING FROM ERF TO AMR WIND ON OLD TIME, ORIENTATION " << ori << std::endl << std::endl;
-    }
-    else {
-      amrex::Print() << std::endl << "FILLPATCHING FROM ERF TO AMR WIND ON NEW TIME, ORIENTATION " << ori << std::endl << std::endl;
-    }
-
-    // JUNK for selecting only subdomain
-
-    std::map<int,int> mfmap;
-    amrex::Vector<int> new_dm;
-    amrex::BoxList new_bl;
-    const amrex::BoxArray& old_ba = erf_data[Vars::cons].boxArray();
-    const amrex::DistributionMapping& old_dm = erf_data[Vars::cons].DistributionMap();
-    for (int i = 0; i < old_ba.size(); i++) {
-      amrex::Box isect = old_ba[i] & eboxvec_afrome[ori];
-      // ISSUES ISSUES TISSUES
-      // when to multiply/divide by density
-      
-      amrex::Print() << "SETUP " << amrex::ParallelDescriptor::MyProc() << " " << isect  << isect.ok() << std::endl;
-      if (isect.ok()) {
-        new_bl.push_back(isect);
-        new_dm.push_back(old_dm[i]);
-        mfmap.insert({new_dm.size()-1, i});
-      } 
-    }
-    amrex::BoxArray new_ba(new_bl);
-    amrex::DistributionMapping new_new_dm(new_dm);
-    amrex::MultiFab newmf(new_ba, new_new_dm, 1, 0);
-
-    amrex::Print() << "OLD DM" << old_dm << std::endl;
-    amrex::Print() << "NEW DM" << new_new_dm << std::endl;
+    amrex::MultiFab newmf(new_ba, new_dm, 1, 0); //nghost);
     
 #ifdef _OPENMP
 #pragma omp parallel if (amrex::Gpu::notInLaunchRegion())
 #endif
     {
       for ( amrex::MFIter mfi(newmf,amrex::TilingIfNotGPU()); mfi.isValid(); ++mfi) {
-        const amrex::Array4<const amrex::Real> old_data = erf_data[Vars::cons].const_array(mfmap[mfi.index()]);
-        std::cout << "MFITER " << " " << amrex::ParallelDescriptor::MyProc() << " " << mfi.tilebox() << std::endl;
+        const amrex::Array4<const amrex::Real> erf_arr = erf_data[Vars::cons].const_array(mfmap[mfi.index()]);
+        const amrex::Array4<      amrex::Real> erf_arr_copy = newmf.array(mfi);
+        amrex::ParallelFor(mfi.growntilebox(),[=] AMREX_GPU_DEVICE (int i, int j, int k) noexcept
+        {
+          erf_arr_copy(i,j,k) = erf_arr(i,j,k,Cons::RhoScalar) / erf_arr(i,j,k,Cons::Rho);
+        });
       }
     }
     
-    // END JUNK
-    
+    // Copy data
     amrex::NonLocalBC::MultiBlockCommMetaData cmd =
       amrex::NonLocalBC::MultiBlockCommMetaData(receive_br[ori].multiFab(), aboxvec_afrome[ori],
-                                                erf_data[Vars::cons], nghost, dtos_afrome);
+                                                newmf, nghost, dtos_afrome);
 
-    // RHOTheta -> Theta (FIXME bad, should only do for relevant cells, etc)
-    amrex::MultiFab::Divide(erf_data[Vars::cons], erf_data[Vars::cons], Cons::Rho, Cons::RhoScalar, 1, nghost);
+    amrex::NonLocalBC::ParallelCopy(receive_br[ori].multiFab(), newmf,
+                                    cmd, 0, 0, 1, dtos_afrome );
+    
+  } else if (field == "velocity") {
+    amrex::MultiFab newmf(new_ba, new_dm, 3, 0);
+#ifdef _OPENMP
+#pragma omp parallel if (amrex::Gpu::notInLaunchRegion())
+#endif
+    {
+      for ( amrex::MFIter mfi(newmf,amrex::TilingIfNotGPU()); mfi.isValid(); ++mfi) {
+        const amrex::Array4<const amrex::Real> erf_vel_arr[3] = { erf_data[Vars::xvel].const_array(mfmap[mfi.index()]), 
+                                                                  erf_data[Vars::yvel].const_array(mfmap[mfi.index()]),
+                                                                  erf_data[Vars::zvel].const_array(mfmap[mfi.index()]) };
+        
+        const amrex::Array4<      amrex::Real> erf_arr_copy = newmf.array(mfi);
+        const int ndir  = ori.coordDir(); // Normal Dir
+        const int nface_idx = ori.isLow() ? eboxvec_afrome[ori].smallEnd(ndir) : eboxvec_afrome[ori].bigEnd(ndir);
+        const int tdir1 = (ndir + 1) % 3; // First tangenential dir
+        const int tdir2 = (ndir + 2) % 3; // second tangential di 
+        
+        amrex::ParallelFor(mfi.growntilebox(),[=] AMREX_GPU_DEVICE (int i, int j, int k) noexcept
+        {
+          amrex::IntVect idx {i,j,k};
 
-    // amrex::Abort("I AM JUST STOPPING HERE FOR FUN");
+          // interpolate tangential velocity faces to center
+          amrex::IntVect idx_t1{idx}; idx_t1[tdir1] += 1;
+          amrex::IntVect idx_t2{idx}; idx_t2[tdir2] += 1;
+          erf_arr_copy(idx,tdir1) = 0.5*(erf_vel_arr[tdir1](idx) + erf_vel_arr[tdir1](idx_t1));
+          erf_arr_copy(idx,tdir2) = 0.5*(erf_vel_arr[tdir2](idx) + erf_vel_arr[tdir2](idx_t2));
+
+          // take normal velocity from face
+          amrex::IntVect idx_n{idx}; idx_n[ndir] = nface_idx; 
+          erf_arr_copy(idx,ndir) = erf_vel_arr[ndir](idx_n);
+
+          // TODO : issue when y boundary in amr-wind is pressure outflow
+          //if (ori.coordDir() == 0 and k < 2) {
+          //  std::cout << i << " " << j << " " << k << " | " << idx << " n " << idx_n << " | " << erf_vel_arr[ndir](idx_n) << std::endl;
+          //}
+        });
+      }
+    }
+    // receive_br[ori].setVal(10.0,0,1);
+    // receive_br[ori].setVal(0.0,1,1);
+    // receive_br[ori].setVal(0.0,2,1);
     
     // Copy data
-    amrex::NonLocalBC::ParallelCopy(receive_br[ori].multiFab(), erf_data[Vars::cons],
-                                    cmd, Cons::RhoScalar, 0, 1, dtos_afrome );
+    amrex::NonLocalBC::MultiBlockCommMetaData cmd =
+      amrex::NonLocalBC::MultiBlockCommMetaData(receive_br[ori].multiFab(), aboxvec_afrome[ori],
+                                                newmf, nghost, dtos_afrome);
 
-    // Theta -> RhoTheta (FIXME bad, should only do for relevant cells, etc)
-    amrex::MultiFab::Multiply(erf_data[Vars::cons], erf_data[Vars::cons], Cons::Rho, Cons::RhoScalar, 1, nghost);
+    /*amrex::Print() << "NEW0 " << newmf.min(0) << " | " << newmf.max(0) << std::endl;
+    amrex::Print() << "NEW1 " << newmf.min(1) << " | " << newmf.max(1) << std::endl;
+    amrex::Print() << "NEW2 " << newmf.min(2) << " | " << newmf.max(2) << std::endl; */
+    amrex::NonLocalBC::ParallelCopy(receive_br[ori].multiFab(), newmf,
+                                    cmd, 0, 0, 3, dtos_afrome );
+    
+    /* amrex::Print() << "NEW0 " << receive_br[ori].min(0) << " | " << receive_br[ori].max(0) << std::endl;
+    amrex::Print() << "NEW1 " << newmf.min(1) << " | " << newmf.max(1) << std::endl;
+    amrex::Print() << "NEW2 " << newmf.min(2) << " | " << newmf.max(2) << std::endl; */
+  } else {
+    amrex::Abort("ERF to AMR-Wind copying only supported for fields: temperature, velocity");
   }
   
 }
