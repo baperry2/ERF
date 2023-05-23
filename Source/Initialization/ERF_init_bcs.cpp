@@ -33,7 +33,7 @@ void ERF::init_bcs ()
         m_bc_neumann_vals[BCVars::zvel_bc][ori] = 0.0;
 
 
-        ParmParse pp(bcid);
+        ParmParse pp(pp_prefix + "." + bcid);
         std::string bc_type_in = "null";
         pp.query("type", bc_type_in);
         //if (pp.query("type", bc_type_in))

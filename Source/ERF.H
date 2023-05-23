@@ -285,6 +285,9 @@ public:
                            const amrex::Real time);
 #endif
 
+    amrex::Real get_t_old() {return t_old[0];}
+    amrex::Real get_t_new() {return t_new[0];}
+  
 private:
 
     ///////////////////////////

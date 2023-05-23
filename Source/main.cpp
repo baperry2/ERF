@@ -8,6 +8,7 @@
 
 #ifdef ERF_USE_MULTIBLOCK
 #include <MultiBlockContainer.H>
+#include "amr-wind/incflo.H"
 #endif
 
 std::string inputs_name;

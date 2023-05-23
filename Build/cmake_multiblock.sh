@@ -7,7 +7,7 @@ cmake -DCMAKE_INSTALL_PREFIX:PATH=./install \
       -DCMAKE_C_COMPILER:STRING=mpicc \
       -DCMAKE_Fortran_COMPILER:STRING=mpifort \
       -DMPIEXEC_PREFLAGS:STRING=--oversubscribe \
-      -DCMAKE_BUILD_TYPE:STRING=Release \
+      -DCMAKE_BUILD_TYPE:STRING=Debug \
       -DERF_DIM:STRING=3 \
       -DERF_ENABLE_MPI:BOOL=ON \
       -DERF_ENABLE_MULTIBLOCK:BOOL=ON \
@@ -15,4 +15,4 @@ cmake -DCMAKE_INSTALL_PREFIX:PATH=./install \
       -DERF_ENABLE_FCOMPARE:BOOL=ON \
       -DERF_ENABLE_DOCUMENTATION:BOOL=OFF \
       -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=ON \
-      .. && make -j8
+      .. && make -j${1:-32}

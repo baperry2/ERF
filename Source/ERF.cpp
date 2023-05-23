@@ -368,20 +368,14 @@ ERF::InitData ()
         // start simulation from the beginning
 
         const Real time = 0.0;
+
+        std::cout << " STEP ! " << std::endl;
         InitFromScratch(time);
-
-#ifdef ERF_USE_MULTIBLOCK
-        // Multiblock: hook to set BL & comms once ba/dm are known
-        if(domain_p[0].bigEnd(0) < 500 ) {
-            m_mbc->SetBoxLists();
-            m_mbc->SetBlockCommMetaData();
-        }
-#endif
-
+        std::cout << " STEP 2 " << std::endl;
         if ( (init_type == "ideal" || init_type == "input_sounding") && solverChoice.use_terrain) {
             amrex::Abort("We do not currently support init_type = ideal or input_sounding with terrain");
         }
-
+        std::cout << " STEP 3 " << std::endl;
         if (!solverChoice.use_terrain && solverChoice.terrain_type != 0) {
             amrex::Abort("We do not allow terrain_type != 0 with use_terrain = false");
         }
@@ -1603,6 +1597,14 @@ ERF::ERF (const amrex::RealBox& rb, int max_level_in,
     vars_new.resize(nlevs_max);
     vars_old.resize(nlevs_max);
 
+    rU_new.resize(nlevs_max);
+    rV_new.resize(nlevs_max);
+    rW_new.resize(nlevs_max);
+
+    rU_old.resize(nlevs_max);
+    rV_old.resize(nlevs_max);
+    rW_old.resize(nlevs_max);
+
     for (int lev = 0; lev < nlevs_max; ++lev) {
         vars_new[lev].resize(Vars::NumTypes);
         vars_old[lev].resize(Vars::NumTypes);
@@ -1676,15 +1678,6 @@ ERF::Evolve_MB (int MBstep, int max_block_step)
         int lev = 0;
         int iteration = 1;
         timeStep(lev, cur_time, iteration);
-
-
-        // DEBUG
-        // Multiblock: hook for erf2 to fill from erf1
-        if(domain_p[0].bigEnd(0) < 500) {
-            for (int var_idx = 0; var_idx < Vars::NumTypes; ++var_idx)
-                m_mbc->FillPatchBlocks(var_idx,var_idx);
-        }
-
 
         cur_time  += dt[0];
 

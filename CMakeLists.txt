@@ -19,6 +19,7 @@ set(ERF_PRECISION "DOUBLE" CACHE STRING "Floating point precision SINGLE or DOUB
 
 option(ERF_ENABLE_MOISTURE "Enable Full Moisture" OFF)
 option(ERF_ENABLE_WARM_NO_PRECIP "Enable Warm Moisture" OFF)
+option(ERF_ENABLE_MULTIBLOCK "Enable MutliBlock code" OFF)
 
 #Options for performance
 option(ERF_ENABLE_MPI "Enable MPI" OFF)
@@ -65,10 +66,17 @@ set(AMREX_SUBMOD_LOCATION "${CMAKE_SOURCE_DIR}/Submodules/AMReX")
 include(${CMAKE_SOURCE_DIR}/CMake/SetAmrexOptions.cmake)
 list(APPEND CMAKE_MODULE_PATH "${AMREX_SUBMOD_LOCATION}/Tools/CMake")
 
+set(AMRW_SRC_DIR /projects/erf/bperry/amr-wind/amr-wind)
+set(AMREX_HYDRO_SUBMOD_LOCATION "${CMAKE_SOURCE_DIR}/Submodules/AMReX-Hydro")
+include(${CMAKE_SOURCE_DIR}/CMake/set_amrex_hydro_options.cmake)
+list(APPEND CMAKE_MODULE_PATH "${AMREX_HYDRO_SUBMOD_LOCATION}/Tools/CMake")
+
 ########################### AMReX #####################################
 
 add_subdirectory(${AMREX_SUBMOD_LOCATION})
 include(${CMAKE_SOURCE_DIR}/CMake/SetAmrexCompileFlags.cmake)
+
+add_subdirectory(${AMREX_HYDRO_SUBMOD_LOCATION})
 
 ########################## NETCDF ##################################
 
