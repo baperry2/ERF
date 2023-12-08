@@ -8,6 +8,7 @@
 
 #ifdef ERF_USE_MULTIBLOCK
 #include <MultiBlockContainer.H>
+#include "amr-wind/incflo.H" // FIXME
 #endif
 
 std::string inputs_name;
@@ -76,6 +77,7 @@ int main (int argc, char* argv[])
 
 #ifdef ERF_USE_MULTIBLOCK
     {
+      incflo amrwind; // FIXME
         // Vector of constructor parameters for MultiBlock
         std::vector<amrex::RealBox> rb_v;
         std::vector<int> max_level_v;

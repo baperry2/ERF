@@ -26,6 +26,183 @@ function(build_erf_lib erf_lib_name)
     target_include_directories(${erf_lib_name} PUBLIC ${SRC_DIR}/MultiBlock)
   endif()
 
+  set(AMRW_SRC_DIR  ${SRC_DIR}/../../amr-wind/amr-wind)
+    target_sources(${erf_lib_name} PRIVATE
+${AMRW_SRC_DIR}/incflo_advance.cpp
+${AMRW_SRC_DIR}/incflo.cpp
+${AMRW_SRC_DIR}/incflo_compute_dt.cpp
+${AMRW_SRC_DIR}/incflo_regrid.cpp
+${AMRW_SRC_DIR}/helics.cpp
+${AMRW_SRC_DIR}/CFDSim.cpp
+${AMRW_SRC_DIR}/core/SimTime.cpp
+${AMRW_SRC_DIR}/core/Field.cpp
+${AMRW_SRC_DIR}/core/IntField.cpp
+${AMRW_SRC_DIR}/core/FieldRepo.cpp
+${AMRW_SRC_DIR}/core/ScratchField.cpp
+${AMRW_SRC_DIR}/core/IntScratchField.cpp
+${AMRW_SRC_DIR}/core/ViewField.cpp
+${AMRW_SRC_DIR}/core/MLMGOptions.cpp
+${AMRW_SRC_DIR}/core/MeshMap.cpp
+${AMRW_SRC_DIR}/boundary_conditions/BCInterface.cpp
+${AMRW_SRC_DIR}/boundary_conditions/FixedGradientBC.cpp
+${AMRW_SRC_DIR}/boundary_conditions/wall_models/WallFunction.cpp
+${AMRW_SRC_DIR}/convection/incflo_godunov_weno.cpp
+${AMRW_SRC_DIR}/convection/incflo_godunov_ppm.cpp
+#${AMRW_SRC_DIR}/convection/incflo_godunov_plm.cpp
+${AMRW_SRC_DIR}/convection/incflo_godunov_predict.cpp
+${AMRW_SRC_DIR}/convection/incflo_godunov_advection.cpp
+${AMRW_SRC_DIR}/convection/incflo_mol_fluxes.cpp
+${AMRW_SRC_DIR}/derive/field_algebra.cpp
+${AMRW_SRC_DIR}/diffusion/incflo_diffusion.cpp
+${AMRW_SRC_DIR}/projection/incflo_apply_nodal_projection.cpp
+${AMRW_SRC_DIR}/setup/init.cpp
+${AMRW_SRC_DIR}/utilities/diagnostics.cpp
+${AMRW_SRC_DIR}/utilities/io.cpp
+${AMRW_SRC_DIR}/utilities/bc_ops.cpp
+${AMRW_SRC_DIR}/utilities/console_io.cpp
+${AMRW_SRC_DIR}/utilities/IOManager.cpp
+${AMRW_SRC_DIR}/utilities/FieldPlaneAveraging.cpp
+${AMRW_SRC_DIR}/utilities/FieldPlaneAveragingFine.cpp
+${AMRW_SRC_DIR}/utilities/SecondMomentAveraging.cpp
+${AMRW_SRC_DIR}/utilities/ThirdMomentAveraging.cpp
+${AMRW_SRC_DIR}/utilities/PostProcessing.cpp
+${AMRW_SRC_DIR}/utilities/DerivedQuantity.cpp
+${AMRW_SRC_DIR}/utilities/DerivedQtyDefs.cpp
+${AMRW_SRC_DIR}/utilities/tagging/RefinementCriteria.cpp
+${AMRW_SRC_DIR}/utilities/tagging/CartBoxRefinement.cpp
+${AMRW_SRC_DIR}/utilities/tagging/FieldRefinement.cpp
+${AMRW_SRC_DIR}/utilities/tagging/GradientMagRefinement.cpp
+${AMRW_SRC_DIR}/utilities/tagging/CurvatureRefinement.cpp
+${AMRW_SRC_DIR}/utilities/tagging/QCriterionRefinement.cpp
+${AMRW_SRC_DIR}/utilities/tagging/VorticityMagRefinement.cpp
+${AMRW_SRC_DIR}/utilities/tagging/OversetRefinement.cpp
+${AMRW_SRC_DIR}/utilities/tagging/GeometryRefinement.cpp
+${AMRW_SRC_DIR}/utilities/tagging/BoxRefiner.cpp
+${AMRW_SRC_DIR}/utilities/tagging/CylinderRefiner.cpp
+${AMRW_SRC_DIR}/utilities/sampling/Sampling.cpp
+${AMRW_SRC_DIR}/utilities/sampling/SamplingContainer.cpp
+${AMRW_SRC_DIR}/utilities/sampling/LineSampler.cpp
+${AMRW_SRC_DIR}/utilities/sampling/LidarSampler.cpp
+${AMRW_SRC_DIR}/utilities/sampling/DTUSpinnerSampler.cpp
+${AMRW_SRC_DIR}/utilities/sampling/PlaneSampler.cpp
+${AMRW_SRC_DIR}/utilities/sampling/ProbeSampler.cpp
+${AMRW_SRC_DIR}/utilities/sampling/FieldNorms.cpp
+${AMRW_SRC_DIR}/utilities/sampling/KineticEnergy.cpp
+${AMRW_SRC_DIR}/utilities/sampling/Enstrophy.cpp
+${AMRW_SRC_DIR}/utilities/sampling/FreeSurface.cpp
+${AMRW_SRC_DIR}/utilities/sampling/WaveEnergy.cpp
+${AMRW_SRC_DIR}/utilities/averaging/TimeAveraging.cpp
+${AMRW_SRC_DIR}/utilities/averaging/ReAveraging.cpp
+${AMRW_SRC_DIR}/utilities/averaging/ReynoldsStress.cpp
+#${AMRW_SRC_DIR}/utilities/ncutils/nc_interface.cpp
+#${AMRW_SRC_DIR}/utilities/ascent/ascent.H
+#${AMRW_SRC_DIR}/utilities/ascent/ascent.cpp
+${AMRW_SRC_DIR}/wind_energy/ABL.cpp
+${AMRW_SRC_DIR}/wind_energy/ABLStats.cpp
+${AMRW_SRC_DIR}/wind_energy/ABLFieldInit.cpp
+${AMRW_SRC_DIR}/wind_energy/ABLFieldInitFile.cpp
+${AMRW_SRC_DIR}/wind_energy/ABLMesoscaleForcing.cpp
+${AMRW_SRC_DIR}/wind_energy/ABLWallFunction.cpp
+${AMRW_SRC_DIR}/wind_energy/ABLFillInflow.cpp
+${AMRW_SRC_DIR}/wind_energy/ABLBoundaryPlane.cpp
+${AMRW_SRC_DIR}/wind_energy/MOData.cpp
+${AMRW_SRC_DIR}/wind_energy/ABLFillMPL.cpp
+${AMRW_SRC_DIR}/wind_energy/ABLModulatedPowerLaw.cpp
+${AMRW_SRC_DIR}/wind_energy/actuator/actuator_utils.cpp
+${AMRW_SRC_DIR}/wind_energy/actuator/Actuator.cpp
+${AMRW_SRC_DIR}/wind_energy/actuator/ActuatorContainer.cpp
+${AMRW_SRC_DIR}/wind_energy/actuator/FLLC.cpp
+${AMRW_SRC_DIR}/wind_energy/actuator/aero/AirfoilTable.cpp
+${AMRW_SRC_DIR}/wind_energy/actuator/wing/wing_ops.cpp
+${AMRW_SRC_DIR}/wind_energy/actuator/wing/FlatPlate.cpp
+${AMRW_SRC_DIR}/wind_energy/actuator/wing/FixedWing.cpp
+${AMRW_SRC_DIR}/wind_energy/actuator/turbine/turbine_utils.cpp
+${AMRW_SRC_DIR}/wind_energy/actuator/turbine/fast/FastIface.cpp
+#${AMRW_SRC_DIR}/wind_energy/actuator/turbine/fast/TurbineFast.cpp
+${AMRW_SRC_DIR}/wind_energy/actuator/disk/ActuatorDisk.cpp
+${AMRW_SRC_DIR}/wind_energy/actuator/disk/disk_ops.cpp
+${AMRW_SRC_DIR}/wind_energy/actuator/disk/Joukowsky_ops.cpp
+${AMRW_SRC_DIR}/wind_energy/actuator/disk/uniform_ct_ops.cpp
+${AMRW_SRC_DIR}/equation_systems/PDEBase.cpp
+${AMRW_SRC_DIR}/equation_systems/DiffusionOps.cpp
+${AMRW_SRC_DIR}/equation_systems/icns/icns_advection.cpp
+${AMRW_SRC_DIR}/equation_systems/icns/icns.cpp
+${AMRW_SRC_DIR}/equation_systems/icns/source_terms/ABLForcing.cpp
+${AMRW_SRC_DIR}/equation_systems/icns/source_terms/ABLMesoForcingMom.cpp
+${AMRW_SRC_DIR}/equation_systems/icns/source_terms/GeostrophicForcing.cpp
+${AMRW_SRC_DIR}/equation_systems/icns/source_terms/HurricaneForcing.cpp
+${AMRW_SRC_DIR}/equation_systems/icns/source_terms/BoussinesqBuoyancy.cpp
+${AMRW_SRC_DIR}/equation_systems/icns/source_terms/DensityBuoyancy.cpp
+${AMRW_SRC_DIR}/equation_systems/icns/source_terms/GravityForcing.cpp
+${AMRW_SRC_DIR}/equation_systems/icns/source_terms/CoriolisForcing.cpp
+${AMRW_SRC_DIR}/equation_systems/icns/source_terms/BodyForce.cpp
+${AMRW_SRC_DIR}/equation_systems/icns/source_terms/ABLMeanBoussinesq.cpp
+${AMRW_SRC_DIR}/equation_systems/icns/source_terms/ActuatorForcing.cpp
+${AMRW_SRC_DIR}/equation_systems/icns/source_terms/SynthTurbForcing.cpp
+${AMRW_SRC_DIR}/equation_systems/temperature/temperature.cpp
+${AMRW_SRC_DIR}/equation_systems/temperature/source_terms/ABLMesoForcingTemp.cpp
+${AMRW_SRC_DIR}/equation_systems/density/density.cpp
+${AMRW_SRC_DIR}/equation_systems/tke/TKE.cpp
+${AMRW_SRC_DIR}/equation_systems/tke/source_terms/KsgsM84Src.cpp
+${AMRW_SRC_DIR}/equation_systems/tke/source_terms/KwSSTSrc.cpp
+${AMRW_SRC_DIR}/equation_systems/sdr/SDR.cpp
+${AMRW_SRC_DIR}/equation_systems/sdr/source_terms/SDRSrc.cpp
+${AMRW_SRC_DIR}/equation_systems/levelset/levelset.cpp
+${AMRW_SRC_DIR}/equation_systems/vof/SplitAdvection.cpp
+${AMRW_SRC_DIR}/equation_systems/vof/vof.cpp
+${AMRW_SRC_DIR}/turbulence/LaminarModel.cpp
+${AMRW_SRC_DIR}/turbulence/turb_utils.cpp
+${AMRW_SRC_DIR}/turbulence/LES/Smagorinsky.cpp
+${AMRW_SRC_DIR}/turbulence/LES/OneEqKsgs.cpp
+${AMRW_SRC_DIR}/turbulence/RANS/KOmegaSST.cpp
+${AMRW_SRC_DIR}/turbulence/RANS/KOmegaSSTIDDES.cpp
+${AMRW_SRC_DIR}/physics/BoussinesqBubble.cpp
+${AMRW_SRC_DIR}/physics/BoussinesqBubbleFieldInit.cpp
+${AMRW_SRC_DIR}/physics/ChannelFlow.cpp
+${AMRW_SRC_DIR}/physics/RayleighTaylor.cpp
+${AMRW_SRC_DIR}/physics/RayleighTaylorFieldInit.cpp
+${AMRW_SRC_DIR}/physics/TaylorGreenVortex.cpp
+${AMRW_SRC_DIR}/physics/FreeStream.cpp
+${AMRW_SRC_DIR}/physics/ConvectingTaylorVortex.cpp
+${AMRW_SRC_DIR}/physics/EkmanSpiral.cpp
+${AMRW_SRC_DIR}/physics/SyntheticTurbulence.cpp
+${AMRW_SRC_DIR}/physics/HybridRANSLESABL.cpp
+${AMRW_SRC_DIR}/physics/VortexRing.cpp
+${AMRW_SRC_DIR}/physics/BurggrafFlow.cpp
+${AMRW_SRC_DIR}/physics/multiphase/MultiPhase.cpp
+${AMRW_SRC_DIR}/physics/multiphase/VortexPatch.cpp
+${AMRW_SRC_DIR}/physics/multiphase/VortexPatchScalarVel.cpp
+${AMRW_SRC_DIR}/physics/multiphase/ZalesakDisk.cpp
+${AMRW_SRC_DIR}/physics/multiphase/ZalesakDiskScalarVel.cpp
+${AMRW_SRC_DIR}/physics/multiphase/DamBreak.cpp
+${AMRW_SRC_DIR}/physics/multiphase/SloshingTank.cpp
+${AMRW_SRC_DIR}/physics/multiphase/RainDrop.cpp
+${AMRW_SRC_DIR}/physics/multiphase/BreakingWaves.cpp
+${AMRW_SRC_DIR}/physics/udfs/UDF.cpp
+${AMRW_SRC_DIR}/physics/udfs/LinearProfile.cpp
+${AMRW_SRC_DIR}/physics/udfs/PowerLawProfile.cpp
+${AMRW_SRC_DIR}/physics/udfs/BurggrafLid.cpp
+#${AMRW_SRC_DIR}/physics/mms/MMS.cpp
+#${AMRW_SRC_DIR}/physics/mms/MMSForcing.cpp
+${AMRW_SRC_DIR}/overset/TiogaInterface.cpp
+${AMRW_SRC_DIR}/immersed_boundary/IB.cpp
+${AMRW_SRC_DIR}/immersed_boundary/bluff_body/bluff_body_ops.cpp
+${AMRW_SRC_DIR}/immersed_boundary/bluff_body/Box.cpp
+${AMRW_SRC_DIR}/immersed_boundary/bluff_body/Cylinder.cpp
+${AMRW_SRC_DIR}/immersed_boundary/bluff_body/Sphere.cpp
+${AMRW_SRC_DIR}/mesh_mapping_models/ChannelFlowMap.cpp
+${AMRW_SRC_DIR}/mesh_mapping_models/ConstantMap.cpp
+${AMRW_SRC_DIR}/ocean_waves/OceanWaves.cpp
+${AMRW_SRC_DIR}/ocean_waves/relaxation_zones/relaxation_zones_ops.cpp
+${AMRW_SRC_DIR}/ocean_waves/relaxation_zones/LinearWaves.cpp
+${AMRW_SRC_DIR}/ocean_waves/relaxation_zones/StokesWaves.cpp
+${AMRW_SRC_DIR}/ocean_waves/relaxation_zones/HOSWaves.cpp
+    )
+
+  target_include_directories(${erf_lib_name} SYSTEM PUBLIC
+${AMRW_SRC_DIR}/../
+  )
+
   if(ERF_ENABLE_WARM_NO_PRECIP)
     target_compile_definitions(${erf_lib_name} PUBLIC ERF_USE_WARM_NO_PRECIP)
   endif()
@@ -88,10 +265,10 @@ function(build_erf_lib erf_lib_name)
                    ${CMAKE_SOURCE_DIR}/Submodules/RRTMGP/cpp/extensions/fluxes_byband/mo_fluxes_byband_kernels.cpp
                   )
 
-    # The interface code needs to know about the RRTMGP includes 
+    # The interface code needs to know about the RRTMGP includes
     target_compile_definitions(${erf_lib_name} PUBLIC ERF_USE_RRTMGP)
 
-    target_include_directories(${erf_lib_name} SYSTEM PUBLIC 
+    target_include_directories(${erf_lib_name} SYSTEM PUBLIC
                                ${CMAKE_SOURCE_DIR}/Submodules/RRTMGP/cpp/extensions/fluxes_byband
                                ${CMAKE_SOURCE_DIR}/Submodules/RRTMGP/cpp/extensions/cloud_optics
                                ${CMAKE_SOURCE_DIR}/Submodules/RRTMGP/cpp/examples
@@ -165,7 +342,7 @@ function(build_erf_lib erf_lib_name)
        ${SRC_DIR}/Utils/MomentumToVelocity.cpp
        ${SRC_DIR}/Utils/TerrainMetrics.cpp
        ${SRC_DIR}/Utils/VelocityToMomentum.cpp
-       ${SRC_DIR}/Utils/InteriorGhostCells.cpp 
+       ${SRC_DIR}/Utils/InteriorGhostCells.cpp
   )
 
   if(NOT "${erf_exe_name}" STREQUAL "erf_unit_tests")
@@ -221,6 +398,7 @@ function(build_erf_lib erf_lib_name)
 
   #Link to amrex library
   target_link_libraries_system(${erf_lib_name} PUBLIC amrex)
+  target_link_libraries_system(${erf_lib_name} PUBLIC AMReX-Hydro::amrex_hydro_api)
   if(ERF_ENABLE_CUDA)
     set(pctargets "${erf_lib_name}")
     foreach(tgt IN LISTS pctargets)
@@ -248,6 +426,7 @@ function(build_erf_exe erf_exe_name)
 
   set(SRC_DIR ${CMAKE_SOURCE_DIR}/Source)
 
+  target_link_libraries(${erf_exe_name} PRIVATE ${erf_lib_name} AMReX-Hydro::amrex_hydro_api)
   target_link_libraries(${erf_exe_name}  PUBLIC ${erf_lib_name})
   include(${CMAKE_SOURCE_DIR}/CMake/SetERFCompileFlags.cmake)
   set_erf_compile_flags(${erf_exe_name})
