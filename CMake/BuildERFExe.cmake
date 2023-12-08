@@ -26,7 +26,7 @@ function(build_erf_lib erf_lib_name)
     target_include_directories(${erf_lib_name} PUBLIC ${SRC_DIR}/MultiBlock)
   endif()
 
-    set(AMRW_SRC_DIR /projects/erf/bperry/amr-wind-new/amr-wind)
+    set(AMRW_SRC_DIR  ${SRC_DIR}/../../amr-wind/amr-wind)
     target_sources(${erf_lib_name} PRIVATE
 ${AMRW_SRC_DIR}/incflo_advance.cpp
 ${AMRW_SRC_DIR}/incflo.cpp
@@ -362,7 +362,7 @@ endfunction(build_erf_lib)
 function(build_erf_exe erf_exe_name)
 
   set(SRC_DIR ${CMAKE_SOURCE_DIR}/Source)
-  
+
   target_link_libraries(${erf_exe_name} PRIVATE ${erf_lib_name} AMReX-Hydro::amrex_hydro_api)
   target_link_libraries(${erf_exe_name}  PUBLIC ${erf_lib_name})
   include(${CMAKE_SOURCE_DIR}/CMake/SetERFCompileFlags.cmake)
