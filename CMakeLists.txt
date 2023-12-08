@@ -67,7 +67,7 @@ set(AMREX_SUBMOD_LOCATION "${CMAKE_SOURCE_DIR}/Submodules/AMReX")
 include(${CMAKE_SOURCE_DIR}/CMake/SetAmrexOptions.cmake)
 list(APPEND CMAKE_MODULE_PATH "${AMREX_SUBMOD_LOCATION}/Tools/CMake")
 
-set(AMREX_HYDRO_SUBMOD_LOCATION "${CMAKE_SOURCE_DIR}/Submodules/AMReX-Hydro")
+set(AMREX_HYDRO_SUBMOD_LOCATION "${CMAKE_SOURCE_DIR}/Submodules/amr-wind/submods/AMReX-Hydro")
 include(${CMAKE_SOURCE_DIR}/CMake/set_amrex_hydro_options.cmake)
 list(APPEND CMAKE_MODULE_PATH "${AMREX_HYDRO_SUBMOD_LOCATION}/Tools/CMake")
 

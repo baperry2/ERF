@@ -7,3 +7,6 @@
 [submodule "Submodules/RRTMGP"]
 	path = Submodules/RRTMGP
 	url = https://github.com/E3SM-Project/rte-rrtmgp
+[submodule "Submodules/amr-wind"]
+	path = Submodules/amr-wind
+	url = https://github.com/baperry2/amr-wind.git

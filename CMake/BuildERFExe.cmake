@@ -26,7 +26,7 @@ function(build_erf_lib erf_lib_name)
     target_include_directories(${erf_lib_name} PUBLIC ${SRC_DIR}/MultiBlock)
   endif()
 
-  set(AMRW_SRC_DIR  ${SRC_DIR}/../../amr-wind/amr-wind)
+  set(AMRW_SRC_DIR  ${SRC_DIR}/../Submodules/amr-wind/amr-wind)
     target_sources(${erf_lib_name} PRIVATE
 ${AMRW_SRC_DIR}/incflo_advance.cpp
 ${AMRW_SRC_DIR}/incflo.cpp
