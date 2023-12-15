@@ -113,10 +113,8 @@ Problem::init_custom_pert(
     if (parms.use_bubble and geomdata.Domain().bigEnd(0) > 60) {
       amrex::Real radius = std::sqrt((x-bcx)*(x-bcx) + (y-bcy)*(y-bcy) + (z-bcz)*(z-bcz));
       ratio = 1.0 + (parms.bubble_temp_ratio - 1.0) * exp(-0.5 * radius* radius / (parms.bubble_radius * parms.bubble_radius));
-      state(i, j, k, Rho_comp) /= ratio;
+      state(i, j, k, RhoScalar_comp) = 300.0 * ratio * 1.161 ;
     }
-    state(i, j, k, RhoScalar_comp) = 300.0 * state(i, j, k, Rho_comp);
-
     // Set scalar = A_0*exp(-10r^2), where r is distance from center of domain
     //  state(i, j, k, RhoScalar_comp) = parms.A_0 * exp(-10.*r*r);
 
